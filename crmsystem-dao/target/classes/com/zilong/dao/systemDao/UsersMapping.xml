@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zilong.dao.systemDao.UsersMapping">
+
+<!-- custom -->
+    <!-- 在这里写你的自定义代码,每次生成.xml文件都会保留这一段代码 -->
+
+
+<!-- /custom -->
+
+
+    <!-- resultMap映射 -->
+    <resultMap id="Usersmap" type="Users">
+        <id column="user_id" property="userId"/>
+        <result column="user_number" property="userNumber"/>
+        <result column="user_name" property="userName"/>
+        <result column="user_sex" property="userSex"/>
+        <result column="user_age" property="userAge"/>
+        <result column="user_phone" property="userPhone"/>
+        <result column="user_password" property="userPassword"/>
+        <result column="user_addr" property="userAddr"/>
+        <result column="user_state" property="userState"/>
+        <collection property="roles" javaType="list" ofType="com.zilong.vo.systemVo.Role" column="user_id"
+                    select="com.zilong.dao.systemDao.RoleMapping.queryRoleByUid" fetchType="lazy">
+        </collection>
+    </resultMap>
+
+    <!-- 查询所有方法 -->
+    <select id="queryAll" resultMap="Usersmap">
+       select user_sex,user_addr,user_password,user_id,user_name,user_age,user_phone,user_number,user_state from Users;
+    </select>
+
+    <!-- 根据主键id查询数据方法 -->
+    <select id="queryById" parameterType="int" resultMap="Usersmap">
+       select * from Users where user_id = #{userId};
+    </select>
+
+    <!-- 根据Users条件查询数据方法 -->
+    <select id="query" resultMap="Usersmap">
+        select user_sex,user_addr,user_password,user_id,user_name,user_age,user_phone,user_number,user_state
+        from Users
+        <where>
+            <if test="userId != null"> and user_id = #{userId}</if>
+            <if test="userNumber != null"> and user_number = #{userNumber}</if>
+            <if test="userName != null"> and user_name = #{userName}</if>
+            <if test="userSex != null"> and user_sex = #{userSex}</if>
+            <if test="userAge != null"> and user_age = #{userAge}</if>
+            <if test="userPhone != null"> and user_phone = #{userPhone}</if>
+            <if test="userPassword != null"> and user_password = #{userPassword}</if>
+            <if test="userAddr != null"> and user_addr = #{userAddr}</if>
+            <if test="userState != null"> and user_state = #{userState}</if>
+        </where>
+    </select>
+
+    <select id="queryByVo" resultMap="Usersmap">
+        select user_sex,user_addr,user_password,user_id,user_name,user_age,user_phone,user_number,user_state
+        from Users
+        <where>
+            <if test="userId != null"> and user_id = #{userId}</if>
+            <if test="userNumber != null"> and user_number = #{userNumber}</if>
+            <if test="userName != null"> and user_name = #{userName}</if>
+            <if test="userSex != null"> and user_sex = #{userSex}</if>
+            <if test="userAge != null"> and user_age = #{userAge}</if>
+            <if test="userPhone != null"> and user_phone = #{userPhone}</if>
+            <if test="userPassword != null"> and user_password = #{userPassword}</if>
+            <if test="userAddr != null"> and user_addr = #{userAddr}</if>
+            <if test="userState != null"> and user_state = #{userState}</if>
+            and user_state !='离职'
+        </where>
+    </select>
+
+    <!-- 根据用户id和主菜单id查询子菜单功能 -->
+    <select id="queryMenuByUid" parameterType="int" resultType="menu">
+        select * from menu where id
+        in(select menu_id from jurisdiction where role_id
+        in(select role_id from user_role where user_id = (select user_id from users where users.user_id = #{uid}))) and parentid = #{pid};
+    </select>
+
+    <select id="queryMenuAll" resultType="menu">
+        select * from menu where parentid = #{pid}
+    </select>
+
+    <!-- 根据员工id查询员工的主菜单功能 -->
+    <select id="queryMenuFristByUid" resultType="menu">
+        select * from menu where id in (SELECT DISTINCT parentid FROM menu WHERE id
+        IN(SELECT menu_id FROM jurisdiction WHERE role_id
+        IN(SELECT role_id FROM user_role WHERE user_id = (SELECT user_id FROM users WHERE users.user_id = #{uid}))));
+    </select>
+
+    <!-- 根据Users条件模糊查询数据方法 -->
+    <select id="queryLike" resultMap="Usersmap">
+        <!-- select user_sex,user_addr,user_password,user_id,user_name,user_age,user_phone,user_number,user_state-->
+        select DISTINCT u.* from users u left join user_role ur on u.user_id=ur.user_id left join role r on ur.role_id = r.role_id
+        <where>
+            <if test="roleId > 0"> and r.role_Id like concat('%',#{roleId},'%')</if>
+            <if test="users.userId != null"> and u.user_id like concat('%',#{users.userId},'%')</if>
+            <if test="users.userNumber != null"> and u.user_number like concat('%',#{users.userNumber},'%')</if>
+            <if test="users.userName != null"> and u.user_name like concat('%',#{users.userName},'%')</if>
+            <if test="users.userSex != null"> and u.user_sex like concat('%',#{users.userSex},'%')</if>
+            <if test="users.userAge != null"> and u.user_age like concat('%',#{users.userAge},'%')</if>
+            <if test="users.userPhone != null"> and u.user_phone like concat('%',#{users.userPhone},'%')</if>
+            <if test="users.userPassword != null"> and u.user_password like concat('%',#{users.userPassword},'%')</if>
+            <if test="users.userAddr != null"> and u.user_addr like concat('%',#{users.userAddr},'%')</if>
+            <if test="users.userState != null"> and u.user_state like concat('%',#{users.userState},'%')</if>
+        </where>
+    </select>
+
+    <!-- 根据Users条件查询数据方法,限制显示条数 -->
+    <select id="queryLimit" resultMap="Usersmap">
+        select user_sex,user_addr,user_password,user_id,user_name,user_age,user_phone,user_number,user_state
+        from Users
+        <where>
+            <if test="Users.userId != null"> and user_id = #{Users.userId}</if>
+            <if test="Users.userNumber != null"> and user_number = #{Users.userNumber}</if>
+            <if test="Users.userName != null"> and user_name = #{Users.userName}</if>
+            <if test="Users.userSex != null"> and user_sex = #{Users.userSex}</if>
+            <if test="Users.userAge != null"> and user_age = #{Users.userAge}</if>
+            <if test="Users.userPhone != null"> and user_phone = #{Users.userPhone}</if>
+            <if test="Users.userPassword != null"> and user_password = #{Users.userPassword}</if>
+            <if test="Users.userAddr != null"> and user_addr = #{Users.userAddr}</if>
+            <if test="Users.userState != null"> and user_state = #{Users.userState}</if>
+        </where>
+        limit #{startIndex},#{pageSize};
+    </select>
+
+    <!-- 根据Users条件模糊查询数据方法,限制显示条数 -->
+    <select id="queryLikeLimit" resultMap="Usersmap">
+        select user_sex,user_addr,user_password,user_id,user_name,user_age,user_phone,user_number,user_state
+        from Users
+        <where>
+            <if test="Users.userId != null"> and user_id like concat('%',#{Users.userId},'%')</if>
+            <if test="Users.userNumber != null"> and user_number like concat('%',#{Users.userNumber},'%')</if>
+            <if test="Users.userName != null"> and user_name like concat('%',#{Users.userName},'%')</if>
+            <if test="Users.userSex != null"> and user_sex like concat('%',#{Users.userSex},'%')</if>
+            <if test="Users.userAge != null"> and user_age like concat('%',#{Users.userAge},'%')</if>
+            <if test="Users.userPhone != null"> and user_phone like concat('%',#{Users.userPhone},'%')</if>
+            <if test="Users.userPassword != null"> and user_password like concat('%',#{Users.userPassword},'%')</if>
+            <if test="Users.userAddr != null"> and user_addr like concat('%',#{Users.userAddr},'%')</if>
+            <if test="Users.userState != null"> and user_state like concat('%',#{Users.userState},'%')</if>
+        </where>
+        limit #{startIndex},#{pageSize};
+    </select>
+
+    <!-- 根据Users条件获取数据总条数方法 -->
+    <select id="queryCount" resultType="int">
+        select count(1) from Users
+        <where>
+            <if test="userId != null"> and user_id = #{userId}</if>
+            <if test="userNumber != null"> and user_number = #{userNumber}</if>
+            <if test="userName != null"> and user_name = #{userName}</if>
+            <if test="userSex != null"> and user_sex = #{userSex}</if>
+            <if test="userAge != null"> and user_age = #{userAge}</if>
+            <if test="userPhone != null"> and user_phone = #{userPhone}</if>
+            <if test="userPassword != null"> and user_password = #{userPassword}</if>
+            <if test="userAddr != null"> and user_addr = #{userAddr}</if>
+            <if test="userState != null"> and user_state = #{userState}</if>
+        </where>
+    </select>
+
+    <!-- 根据Users模糊查询数据总条数方法 -->
+    <select id="queryLikeCount" resultType="int">
+        SELECT COUNT(DISTINCT(u.user_id)) FROM users u LEFT JOIN user_role ur ON u.user_id=ur.user_id LEFT JOIN role r ON ur.role_id = r.role_id
+        <where>
+            <if test="roleId > 0"> and r.role_Id like concat('%',#{roleId},'%')</if>
+            <if test="users.userId != null"> and u.user_id like concat('%',#{users.userId},'%')</if>
+            <if test="users.userNumber != null"> and u.user_number like concat('%',#{users.userNumber},'%')</if>
+            <if test="users.userName != null"> and u.user_name like concat('%',#{users.userName},'%')</if>
+            <if test="users.userSex != null"> and u.user_sex like concat('%',#{users.userSex},'%')</if>
+            <if test="users.userAge != null"> and u.user_age like concat('%',#{users.userAge},'%')</if>
+            <if test="users.userPhone != null"> and u.user_phone like concat('%',#{users.userPhone},'%')</if>
+            <if test="users.userPassword != null"> and u.user_password like concat('%',#{users.userPassword},'%')</if>
+            <if test="users.userAddr != null"> and u.user_addr like concat('%',#{users.userAddr},'%')</if>
+            <if test="users.userState != null"> and u.user_state like concat('%',#{users.userState},'%')</if>
+        </where>
+    </select>
+
+    <!-- 根据Users插入数据方法 -->
+    <insert id="insert" parameterType="Users" useGeneratedKeys="true" keyColumn="user_id" keyProperty="userId">
+        insert into Users (user_id,user_number,user_name,user_sex,user_age,user_phone,user_password,user_addr,user_state)
+        values (#{userId},#{userNumber},#{userName},#{userSex},#{userAge},#{userPhone},#{userPassword},#{userAddr},#{userState});
+    </insert>
+
+    <!-- 根据Users条件修改单条数据方法,从传入对象获取主键id -->
+    <update id="updateById" parameterType="Users">
+        update Users
+        <set>
+            <if test="userNumber != null">user_number = #{userNumber},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="userSex != null">user_sex = #{userSex},</if>
+            <if test="userAge != null">user_age = #{userAge},</if>
+            <if test="userPhone != null">user_phone = #{userPhone},</if>
+            <if test="userPassword != null">user_password = #{userPassword},</if>
+            <if test="userAddr != null">user_addr = #{userAddr},</if>
+            <if test="userState != null">user_state = #{userState},</if>
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <!-- 根据SetValue条件修改多条数据方法,从传入对象Condition中获取修改的条件 -->
+    <update id="updates">
+        update Users
+        <set>
+            <if test="SetValue.userNumber != null">user_number = #{SetValue.userNumber},</if>
+            <if test="SetValue.userName != null">user_name = #{SetValue.userName},</if>
+            <if test="SetValue.userSex != null">user_sex = #{SetValue.userSex},</if>
+            <if test="SetValue.userAge != null">user_age = #{SetValue.userAge},</if>
+            <if test="SetValue.userPhone != null">user_phone = #{SetValue.userPhone},</if>
+            <if test="SetValue.userPassword != null">user_password = #{SetValue.userPassword},</if>
+            <if test="SetValue.userAddr != null">user_addr = #{SetValue.userAddr},</if>
+            <if test="SetValue.userState != null">user_state = #{SetValue.userState},</if>
+        </set>
+        <where>
+            <if test="Condition != null">
+                <if test="Condition.userId != null"> and user_id = #{Condition.userId}</if>
+                <if test="Condition.userNumber != null"> and user_number = #{Condition.userNumber}</if>
+                <if test="Condition.userName != null"> and user_name = #{Condition.userName}</if>
+                <if test="Condition.userSex != null"> and user_sex = #{Condition.userSex}</if>
+                <if test="Condition.userAge != null"> and user_age = #{Condition.userAge}</if>
+                <if test="Condition.userPhone != null"> and user_phone = #{Condition.userPhone}</if>
+                <if test="Condition.userPassword != null"> and user_password = #{Condition.userPassword}</if>
+                <if test="Condition.userAddr != null"> and user_addr = #{Condition.userAddr}</if>
+                <if test="Condition.userState != null"> and user_state = #{Condition.userState}</if>
+            </if>
+        </where>
+
+    </update>
+
+    <!-- 根据Users条件删除单条数据方法,从传入对象获取id -->
+    <delete id="deleteById" parameterType="int">
+        delete from Users where user_id = #{userId};
+    </delete>
+
+    <!-- 根据Users条件修改多条数据方法,从传入对象获取删除条件 -->
+    <delete id="deletes">
+        delete from Users
+        <where>
+            <if test="userId == null and userNumber == null and userName == null and userSex == null and userAge == null and userPhone == null and userPassword == null and userAddr == null and userState == null "> 1 = 2</if>
+            <if test="userId != null"> and user_id = #{userId}</if>
+            <if test="userNumber != null"> and user_number = #{userNumber}</if>
+            <if test="userName != null"> and user_name = #{userName}</if>
+            <if test="userSex != null"> and user_sex = #{userSex}</if>
+            <if test="userAge != null"> and user_age = #{userAge}</if>
+            <if test="userPhone != null"> and user_phone = #{userPhone}</if>
+            <if test="userPassword != null"> and user_password = #{userPassword}</if>
+            <if test="userAddr != null"> and user_addr = #{userAddr}</if>
+            <if test="userState != null"> and user_state = #{userState}</if>
+        </where>
+    </delete>
+
+    <select id="userNumber" resultType="String">
+        SELECT user_number FROM users order by user_number desc LIMIT 1
+    </select>
+
+    <insert id="addRoleAsUser">
+        insert into user_role value (#{userId},#{roleId});
+    </insert>
+
+    <insert id="addUser_role">
+        insert into user_role values (#{userId},#{roleId})
+    </insert>
+
+    <delete id="delUserRoleByUserId" parameterType="int" >
+        delete from user_role where user_id = #{userId}
+    </delete>
+</mapper>

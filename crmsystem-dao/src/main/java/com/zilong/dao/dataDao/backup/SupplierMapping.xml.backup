@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zilong.dao.dataDao.SupplierMapping">
+
+<!-- custom -->
+    <!-- 在这里写你的自定义代码,每次生成.xml文件都会保留这一段代码 -->
+
+
+<!-- /custom -->
+
+
+    <!-- resultMap映射 -->
+    <resultMap id="Suppliermap" type="Supplier">
+        <id column="supplier_id" property="supplierId"/>
+        <result column="supplier_name" property="supplierName"/>
+        <result column="supplier_addr" property="supplierAddr"/>
+        <result column="supplier_mailbox" property="supplierMailbox"/>
+        <result column="supplier_password" property="supplierPassword"/>
+    </resultMap>
+
+    <!-- 查询所有方法 -->
+    <select id="queryAll" resultMap="Suppliermap">
+       select supplier_mailbox,supplier_addr,supplier_name,supplier_id from Supplier;
+    </select>
+
+    <!-- 根据主键id查询数据方法 -->
+    <select id="queryById" parameterType="int" resultMap="Suppliermap">
+       select supplier_mailbox,supplier_addr,supplier_name,supplier_id from Supplier where supplier_id = #{supplierId};
+    </select>
+
+    <!-- 根据Supplier条件查询数据方法 -->
+    <select id="query" resultMap="Suppliermap">
+        select supplier_mailbox,supplier_addr,supplier_name,supplier_id 
+        from Supplier 
+        <where>
+            <if test="supplierId != null"> and supplier_id = #{supplierId}</if>
+            <if test="supplierName != null"> and supplier_name = #{supplierName}</if>
+            <if test="supplierAddr != null"> and supplier_addr = #{supplierAddr}</if>
+            <if test="supplierMailbox != null"> and supplier_mailbox = #{supplierMailbox}</if> 
+        </where>
+    </select>
+
+    <!-- 根据Supplier条件模糊查询数据方法 -->
+    <select id="queryLike" resultMap="Suppliermap">
+        select supplier_mailbox,supplier_addr,supplier_name,supplier_id 
+        from Supplier 
+        <where>
+            <if test="supplierId != null"> and supplier_id like concat('%',#{supplierId},'%')</if>
+            <if test="supplierName != null"> and supplier_name like concat('%',#{supplierName},'%')</if>
+            <if test="supplierAddr != null"> and supplier_addr like concat('%',#{supplierAddr},'%')</if>
+            <if test="supplierMailbox != null"> and supplier_mailbox like concat('%',#{supplierMailbox},'%')</if> 
+        </where>
+    </select>
+
+    <!-- 根据Supplier条件查询数据方法,限制显示条数 -->
+    <select id="queryLimit" resultMap="Suppliermap">
+        select supplier_mailbox,supplier_addr,supplier_name,supplier_id 
+        from Supplier 
+        <where>
+            <if test="Supplier.supplierId != null"> and supplier_id = #{Supplier.supplierId}</if>
+            <if test="Supplier.supplierName != null"> and supplier_name = #{Supplier.supplierName}</if>
+            <if test="Supplier.supplierAddr != null"> and supplier_addr = #{Supplier.supplierAddr}</if>
+            <if test="Supplier.supplierMailbox != null"> and supplier_mailbox = #{Supplier.supplierMailbox}</if> 
+        </where>
+        limit #{startIndex},#{pageSize};
+    </select>
+
+    <!-- 根据Supplier条件模糊查询数据方法,限制显示条数 -->
+    <select id="queryLikeLimit" resultMap="Suppliermap">
+        select supplier_mailbox,supplier_addr,supplier_name,supplier_id 
+        from Supplier 
+        <where>
+            <if test="Supplier.supplierId != null"> and supplier_id like concat('%',#{Supplier.supplierId},'%')</if>
+            <if test="Supplier.supplierName != null"> and supplier_name like concat('%',#{Supplier.supplierName},'%')</if>
+            <if test="Supplier.supplierAddr != null"> and supplier_addr like concat('%',#{Supplier.supplierAddr},'%')</if>
+            <if test="Supplier.supplierMailbox != null"> and supplier_mailbox like concat('%',#{Supplier.supplierMailbox},'%')</if> 
+        </where>
+        limit #{startIndex},#{pageSize};
+    </select>
+
+    <!-- 根据Supplier条件获取数据总条数方法 -->
+    <select id="queryCount" resultType="int">
+        select count(1) from Supplier 
+        <where>
+            <if test="supplierId != null"> and supplier_id = #{supplierId}</if>
+            <if test="supplierName != null"> and supplier_name = #{supplierName}</if>
+            <if test="supplierAddr != null"> and supplier_addr = #{supplierAddr}</if>
+            <if test="supplierMailbox != null"> and supplier_mailbox = #{supplierMailbox}</if> 
+        </where>
+    </select>
+
+    <!-- 根据Supplier模糊查询数据总条数方法 -->
+    <select id="queryLikeCount" resultType="int">
+        select count(1) from Supplier 
+        <where>
+            <if test="supplierId != null"> and supplier_id like concat('%',#{supplierId},'%')</if>
+            <if test="supplierName != null"> and supplier_name like concat('%',#{supplierName},'%')</if>
+            <if test="supplierAddr != null"> and supplier_addr like concat('%',#{supplierAddr},'%')</if>
+            <if test="supplierMailbox != null"> and supplier_mailbox like concat('%',#{supplierMailbox},'%')</if> 
+        </where>
+    </select>
+
+    <!-- 根据Supplier插入数据方法 -->
+    <insert id="insert" parameterType="Supplier" useGeneratedKeys="true" keyColumn="supplier_id" keyProperty="supplierId">
+        insert into Supplier (supplier_id,supplier_name,supplier_addr,supplier_mailbox) 
+        values (#{supplierId},#{supplierName},#{supplierAddr},#{supplierMailbox}); 
+    </insert>
+
+    <!-- 根据Supplier条件修改单条数据方法,从传入对象获取主键id -->
+    <update id="updateById" parameterType="Supplier">
+        update Supplier 
+        <set>
+            <if test="supplierName != null">supplier_name = #{supplierName},</if>
+            <if test="supplierAddr != null">supplier_addr = #{supplierAddr},</if>
+            <if test="supplierMailbox != null">supplier_mailbox = #{supplierMailbox},</if>
+        </set>
+        where supplier_id = #{supplierId}
+    </update>
+
+    <!-- 根据SetValue条件修改多条数据方法,从传入对象Condition中获取修改的条件 -->
+    <update id="updates">
+        update Supplier 
+        <set>
+            <if test="SetValue.supplierName != null">supplier_name = #{SetValue.supplierName},</if>
+            <if test="SetValue.supplierAddr != null">supplier_addr = #{SetValue.supplierAddr},</if>
+            <if test="SetValue.supplierMailbox != null">supplier_mailbox = #{SetValue.supplierMailbox},</if>
+        </set>
+        <where>
+            <if test="Condition != null">
+                <if test="Condition.supplierId != null"> and supplier_id = #{Condition.supplierId}</if>
+                <if test="Condition.supplierName != null"> and supplier_name = #{Condition.supplierName}</if>
+                <if test="Condition.supplierAddr != null"> and supplier_addr = #{Condition.supplierAddr}</if>
+                <if test="Condition.supplierMailbox != null"> and supplier_mailbox = #{Condition.supplierMailbox}</if>
+            </if>
+        </where>
+ 
+    </update>
+
+    <!-- 根据Supplier条件删除单条数据方法,从传入对象获取id -->
+    <delete id="deleteById" parameterType="int">
+        delete from Supplier where supplier_id = #{supplierId};
+    </delete>
+
+    <!-- 根据Supplier条件修改多条数据方法,从传入对象获取删除条件 -->
+    <delete id="deletes">
+        delete from Supplier 
+        <where>
+            <if test="supplierId == null and supplierName == null and supplierAddr == null and supplierMailbox == null "> 1 = 2</if>
+            <if test="supplierId != null"> and supplier_id = #{supplierId}</if>
+            <if test="supplierName != null"> and supplier_name = #{supplierName}</if>
+            <if test="supplierAddr != null"> and supplier_addr = #{supplierAddr}</if>
+            <if test="supplierMailbox != null"> and supplier_mailbox = #{supplierMailbox}</if> 
+        </where>
+    </delete>
+
+    <!-- 关联查询,调用者:"com.zilong.dao.dataDao.CommodityMapping" -->
+    <select id="associationSupplierBysupplier_id" resultMap="basicSuppliermap">
+       select supplier_mailbox,supplier_addr,supplier_name,supplier_id from Supplier where supplier_id = #{fk};
+    </select>
+
+
+    <resultMap id="basicSuppliermap" type="Supplier">
+        <id column="supplier_id" property="supplierId"/>
+        <result column="supplier_name" property="supplierName"/>
+        <result column="supplier_addr" property="supplierAddr"/>
+        <result column="supplier_mailbox" property="supplierMailbox"/>
+    </resultMap>
+
+
+</mapper>

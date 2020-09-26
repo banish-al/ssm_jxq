@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zilong.dao.salesDao.SalesorderMapping">
+
+    <!-- custom -->
+    <!-- 在这里写你的自定义代码,每次生成.xml文件都会保留这一段代码 -->
+
+
+    <!-- /custom -->
+
+
+    <!-- resultMap映射 -->
+    <resultMap id="Salesordermap" type="Salesorder">
+        <id column="salesorder_id" property="salesorderId"/>
+        <result column="salesorder_number" property="salesorderNumber"/>
+        <result column="salesorder_createdate" property="salesorderCreatedate"/>
+        <result column="salesorder_validdate" property="salesorderValiddate"/>
+        <result column="salesorder_totalprice" property="salesorderTotalprice"/>
+        <result column="salesorder_state" property="salesorderState"/>
+        <result column="salesorder_text" property="salesorderText"/>
+        <association property="connection" column="connection_id"
+                     select="com.zilong.dao.dataDao.ConnectionMapping.queryById"
+                     javaType="Connection" fetchType="lazy"/>
+    </resultMap>
+
+    <!-- 查询所有方法 -->
+    <select id="queryAll" resultMap="Salesordermap">
+        select salesorder_state,
+               salesorder_text,
+               salesorder_validdate,
+               connection_id,
+               salesorder_id,
+               salesorder_number,
+               salesorder_createdate,
+               salesorder_totalprice
+        from Salesorder;
+    </select>
+
+    <!-- 根据Salesorder条件模糊查询数据方法 -->
+    <select id="queryLike" resultMap="Salesordermap">
+        select
+        salesorder_state,salesorder_text,salesorder_validdate,connection_id,salesorder_id,salesorder_number,salesorder_createdate,salesorder_totalprice
+        from Salesorder
+        <where>
+            <if test="connection!=null">
+                and connection_id = #{connection.connectionId}
+            </if>
+        </where>
+        group by salesorder_createdate desc ,salesorder_id desc
+    </select>
+
+    <!-- 根据Salesorder模糊查询数据总条数方法 -->
+    <select id="queryLikeCount" resultType="int">
+        select count(1) from Salesorder
+        <where>
+            <if test="connection!=null">
+                and connection_id = #{connection.connectionId}
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据Salesorder插入数据方法 -->
+    <insert id="insert" parameterType="Salesorder" useGeneratedKeys="true" keyColumn="salesorder_id"
+            keyProperty="salesorderId">
+        insert into Salesorder (salesorder_id, salesorder_number, salesorder_createdate, salesorder_validdate,
+                                salesorder_totalprice, connection_id, salesorder_state, salesorder_text)
+        values (#{salesorderId}, #{salesorderNumber}, #{salesorderCreatedate}, #{salesorderValiddate},
+                #{salesorderTotalprice}, #{connection.connectionId}, #{salesorderState}, #{salesorderText});
+    </insert>
+
+    <!-- 根据Salesorder条件修改单条数据方法,从传入对象获取主键id -->
+    <update id="updateById" parameterType="Salesorder">
+        update Salesorder
+        <set>
+            <if test="salesorderNumber != null">salesorder_number = #{salesorderNumber},</if>
+            <if test="salesorderCreatedate != null">salesorder_createdate = #{salesorderCreatedate},</if>
+            <if test="salesorderValiddate != null">salesorder_validdate = #{salesorderValiddate},</if>
+            <if test="salesorderTotalprice != null">salesorder_totalprice = #{salesorderTotalprice},</if>
+            <if test="connectionId != null">connection_id = #{connectionId},</if>
+            <if test="salesorderState != null">salesorder_state = #{salesorderState},</if>
+            <if test="salesorderText != null">salesorder_text = #{salesorderText},</if>
+        </set>
+        where salesorder_id = #{salesorderId}
+    </update>
+
+    <insert id="addSalesorder" useGeneratedKeys="true" keyColumn="salesorder_id" keyProperty="salesorderId">
+        insert into salesorder
+        values (null, #{salesorderNumber}, #{salesorderCreatedate}, #{salesorderValiddate},
+                #{salesorderTotalprice}, #{connection.connectionId}, #{salesorderState}, #{salesorderText})
+    </insert>
+
+    <insert id="addSalesorderDetails">
+        insert into salesorder_details
+        values (#{sid}, #{cid}, #{count})
+    </insert>
+
+    <select id="queryCountByCidOrSid" resultType="int">
+        select sum(commodity_count)
+        from salesorder_details
+        where commodity_id = #{cid}
+          and salesorder_id = #{sid}
+    </select>
+</mapper>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zilong.dao.dataDao.CommoditytypeMapping">
+
+<!-- custom -->
+    <!-- 在这里写你的自定义代码,每次生成.xml文件都会保留这一段代码 -->
+
+
+<!-- /custom -->
+
+
+    <!-- resultMap映射 -->
+    <resultMap id="Commoditytypemap" type="Commoditytype">
+        <id column="commoditytype_id" property="commoditytypeId"/>
+        <result column="commoditytype_name" property="commoditytypeName"/>
+        <result column="commoditytype_coding" property="commoditytypeCoding"/>
+    </resultMap>
+
+    <!-- 查询所有方法 -->
+    <select id="queryAll" resultMap="Commoditytypemap">
+       select commoditytype_coding,commoditytype_id,commoditytype_name from Commoditytype;
+    </select>
+
+    <!-- 根据主键id查询数据方法 -->
+    <select id="queryById" parameterType="int" resultMap="Commoditytypemap">
+       select commoditytype_coding,commoditytype_id,commoditytype_name from Commoditytype where commoditytype_id = #{commoditytypeId};
+    </select>
+
+    <!-- 根据Commoditytype条件查询数据方法 -->
+    <select id="query" resultMap="Commoditytypemap">
+        select commoditytype_coding,commoditytype_id,commoditytype_name 
+        from Commoditytype 
+        <where>
+            <if test="commoditytypeId != null"> and commoditytype_id = #{commoditytypeId}</if>
+            <if test="commoditytypeName != null"> and commoditytype_name = #{commoditytypeName}</if>
+            <if test="commoditytypeCoding != null"> and commoditytype_coding = #{commoditytypeCoding}</if> 
+        </where>
+    </select>
+
+    <!-- 根据Commoditytype条件模糊查询数据方法 -->
+    <select id="queryLike" resultMap="Commoditytypemap">
+        select commoditytype_coding,commoditytype_id,commoditytype_name 
+        from Commoditytype 
+        <where>
+            <if test="commoditytypeId != null"> and commoditytype_id like concat('%',#{commoditytypeId},'%')</if>
+            <if test="commoditytypeName != null"> and commoditytype_name like concat('%',#{commoditytypeName},'%')</if>
+            <if test="commoditytypeCoding != null"> and commoditytype_coding like concat('%',#{commoditytypeCoding},'%')</if> 
+        </where>
+    </select>
+
+    <!-- 根据Commoditytype条件查询数据方法,限制显示条数 -->
+    <select id="queryLimit" resultMap="Commoditytypemap">
+        select commoditytype_coding,commoditytype_id,commoditytype_name 
+        from Commoditytype 
+        <where>
+            <if test="Commoditytype.commoditytypeId != null"> and commoditytype_id = #{Commoditytype.commoditytypeId}</if>
+            <if test="Commoditytype.commoditytypeName != null"> and commoditytype_name = #{Commoditytype.commoditytypeName}</if>
+            <if test="Commoditytype.commoditytypeCoding != null"> and commoditytype_coding = #{Commoditytype.commoditytypeCoding}</if> 
+        </where>
+        limit #{startIndex},#{pageSize};
+    </select>
+
+    <!-- 根据Commoditytype条件模糊查询数据方法,限制显示条数 -->
+    <select id="queryLikeLimit" resultMap="Commoditytypemap">
+        select commoditytype_coding,commoditytype_id,commoditytype_name 
+        from Commoditytype 
+        <where>
+            <if test="Commoditytype.commoditytypeId != null"> and commoditytype_id like concat('%',#{Commoditytype.commoditytypeId},'%')</if>
+            <if test="Commoditytype.commoditytypeName != null"> and commoditytype_name like concat('%',#{Commoditytype.commoditytypeName},'%')</if>
+            <if test="Commoditytype.commoditytypeCoding != null"> and commoditytype_coding like concat('%',#{Commoditytype.commoditytypeCoding},'%')</if> 
+        </where>
+        limit #{startIndex},#{pageSize};
+    </select>
+
+    <!-- 根据Commoditytype条件获取数据总条数方法 -->
+    <select id="queryCount" resultType="int">
+        select count(1) from Commoditytype 
+        <where>
+            <if test="commoditytypeId != null"> and commoditytype_id = #{commoditytypeId}</if>
+            <if test="commoditytypeName != null"> and commoditytype_name = #{commoditytypeName}</if>
+            <if test="commoditytypeCoding != null"> and commoditytype_coding = #{commoditytypeCoding}</if> 
+        </where>
+    </select>
+
+    <!-- 根据Commoditytype模糊查询数据总条数方法 -->
+    <select id="queryLikeCount" resultType="int">
+        select count(1) from Commoditytype 
+        <where>
+            <if test="commoditytypeId != null"> and commoditytype_id like concat('%',#{commoditytypeId},'%')</if>
+            <if test="commoditytypeName != null"> and commoditytype_name like concat('%',#{commoditytypeName},'%')</if>
+            <if test="commoditytypeCoding != null"> and commoditytype_coding like concat('%',#{commoditytypeCoding},'%')</if> 
+        </where>
+    </select>
+
+    <!-- 根据Commoditytype插入数据方法 -->
+    <insert id="insert" parameterType="Commoditytype" useGeneratedKeys="true" keyColumn="commoditytype_id" keyProperty="commoditytypeId">
+        insert into Commoditytype (commoditytype_id,commoditytype_name,commoditytype_coding) 
+        values (#{commoditytypeId},#{commoditytypeName},#{commoditytypeCoding}); 
+    </insert>
+
+    <!-- 根据Commoditytype条件修改单条数据方法,从传入对象获取主键id -->
+    <update id="updateById" parameterType="Commoditytype">
+        update Commoditytype 
+        <set>
+            <if test="commoditytypeName != null">commoditytype_name = #{commoditytypeName},</if>
+            <if test="commoditytypeCoding != null">commoditytype_coding = #{commoditytypeCoding},</if>
+        </set>
+        where commoditytype_id = #{commoditytypeId}
+    </update>
+
+    <!-- 根据SetValue条件修改多条数据方法,从传入对象Condition中获取修改的条件 -->
+    <update id="updates">
+        update Commoditytype 
+        <set>
+            <if test="SetValue.commoditytypeName != null">commoditytype_name = #{SetValue.commoditytypeName},</if>
+            <if test="SetValue.commoditytypeCoding != null">commoditytype_coding = #{SetValue.commoditytypeCoding},</if>
+        </set>
+        <where>
+            <if test="Condition != null">
+                <if test="Condition.commoditytypeId != null"> and commoditytype_id = #{Condition.commoditytypeId}</if>
+                <if test="Condition.commoditytypeName != null"> and commoditytype_name = #{Condition.commoditytypeName}</if>
+                <if test="Condition.commoditytypeCoding != null"> and commoditytype_coding = #{Condition.commoditytypeCoding}</if>
+            </if>
+        </where>
+ 
+    </update>
+
+    <!-- 根据Commoditytype条件删除单条数据方法,从传入对象获取id -->
+    <delete id="deleteById" parameterType="int">
+        delete from Commoditytype where commoditytype_id = #{commoditytypeId};
+    </delete>
+
+    <!-- 根据Commoditytype条件修改多条数据方法,从传入对象获取删除条件 -->
+    <delete id="deletes">
+        delete from Commoditytype 
+        <where>
+            <if test="commoditytypeId == null and commoditytypeName == null and commoditytypeCoding == null "> 1 = 2</if>
+            <if test="commoditytypeId != null"> and commoditytype_id = #{commoditytypeId}</if>
+            <if test="commoditytypeName != null"> and commoditytype_name = #{commoditytypeName}</if>
+            <if test="commoditytypeCoding != null"> and commoditytype_coding = #{commoditytypeCoding}</if> 
+        </where>
+    </delete>
+
+    <!-- 关联查询,调用者:"com.zilong.dao.dataDao.CommodityMapping" -->
+    <select id="associationCommoditytypeBycommoditytype_id" resultMap="basicCommoditytypemap">
+       select commoditytype_coding,commoditytype_id,commoditytype_name from Commoditytype where commoditytype_id = #{fk};
+    </select>
+
+
+    <resultMap id="basicCommoditytypemap" type="Commoditytype">
+        <id column="commoditytype_id" property="commoditytypeId"/>
+        <result column="commoditytype_name" property="commoditytypeName"/>
+        <result column="commoditytype_coding" property="commoditytypeCoding"/>
+    </resultMap>
+
+
+</mapper>

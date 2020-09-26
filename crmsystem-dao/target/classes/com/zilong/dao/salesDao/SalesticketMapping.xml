@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zilong.dao.salesDao.SalesticketMapping">
+
+    <!-- custom -->
+    <!-- 在这里写你的自定义代码,每次生成.xml文件都会保留这一段代码 -->
+
+
+    <!-- /custom -->
+
+
+    <!-- resultMap映射 -->
+    <resultMap id="Salesticketmap" type="Salesticket">
+        <id column="salesticket_id" property="salesticketId"/>
+        <result column="salesticket_date" property="salesticketDate"/>
+        <result column="salesticket_state" property="salesticketState"/>
+        <result column="salesticket_text" property="salesticketText"/>
+        <association property="salesorder" column="salesorder_id"
+                     select="com.zilong.dao.salesDao.SalesorderMapping.querySalesorderById"
+                     javaType="Salesorder" fetchType="lazy"/>
+        <association property="users" column="user_id"
+                     select="com.zilong.dao.systemDao.UsersMapping.queryById"
+                     javaType="Users" fetchType="lazy"/>
+    </resultMap>
+
+    <!-- 查询所有方法 -->
+    <select id="queryAll" resultMap="Salesticketmap">
+        select *
+        from Salesticket;
+    </select>
+
+
+    <!-- 根据Salesticket条件模糊查询数据方法 -->
+    <select id="queryLike" resultMap="Salesticketmap">
+        select *
+        from Salesticket
+        <where>
+        </where>
+        group by salesticket_date desc ,salesticket_id desc
+    </select>
+
+    <!-- 根据Salesticket模糊查询数据总条数方法 -->
+    <select id="queryLikeCount" resultType="int">
+        select count(1) from Salesticket
+        <where>
+
+        </where>
+    </select>
+
+    <!-- 根据Salesticket插入数据方法 -->
+    <insert id="insert" parameterType="Salesticket" useGeneratedKeys="true" keyColumn="salesticket_id"
+            keyProperty="salesticketId">
+        insert into Salesticket
+        values (null, #{salesorder.salesorderId}, #{users.userId}, #{salesticketDate}, #{salesticketState},
+                #{salesticketText});
+    </insert>
+
+    <select id="queryUserBySalesorder" parameterType="int" resultType="java.lang.String">
+        select user_name from users where user_id = (select user_id from salesticket where salesorder_id =#{sid});
+    </select>
+
+    <update id="uptSalesticketChukuOk" parameterType="int">
+        update salesticket set salesticket_state='已出库' where salesorder_id=#{salesorderId}
+    </update>
+
+    <select id="queryCountByCidOrSid" resultType="int">
+        select commodity_count from salesorder_details where commodity_id = #{cid} and salesorder_id = #{sid}
+    </select>
+
+    <insert id="addConnectionCountBySid" parameterType="Integer">
+        UPDATE CONNECTION SET connection_count = connection_count+1 WHERE CONNECTION_ID = (
+            SELECT CONNECTION_ID FROM salesorder WHERE salesorder_id = #{sid})
+    </insert>
+</mapper>

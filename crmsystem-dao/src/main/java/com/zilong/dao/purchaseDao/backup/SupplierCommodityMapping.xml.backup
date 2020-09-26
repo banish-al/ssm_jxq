@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zilong.dao.purchaseDao.SupplierCommodityMapping">
+
+    <!-- custom -->
+    <!-- 在这里写你的自定义代码,每次生成.xml文件都会保留这一段代码 -->
+
+
+    <!-- /custom -->
+
+
+    <!-- resultMap映射 -->
+    <resultMap id="SupplierCommoditymap" type="SupplierCommodity">
+        <id column="supplier_commodity_id" property="supplierCommodityId"/>
+        <result column="supplier_commodity_name" property="supplierCommodityName"/>
+        <result column="supplier_commodity_onprice" property="supplierCommodityOnprice"/>
+        <result column="supplier_commodity_image" property="supplierCommodityImage"/>
+        <association property="commoditytype" column="{fk=commoditytype_id}"
+                     select="com.zilong.dao.dataDao.CommoditytypeMapping.associationCommoditytypeBycommoditytype_id"
+                     javaType="Commoditytype" fetchType="lazy"/>
+        <association property="supplier" column="{fk=supplier_id}"
+                     select="com.zilong.dao.dataDao.SupplierMapping.associationSupplierBysupplier_id"
+                     javaType="Supplier" fetchType="lazy"/>
+    </resultMap>
+
+    <!-- 查询所有方法 -->
+    <select id="queryAll" resultMap="SupplierCommoditymap">
+        select supplier_commodity_image,
+               commoditytype_id,
+               supplier_commodity_onprice,
+               supplier_commodity_id,
+               supplier_id,
+               supplier_commodity_name
+        from supplier_commodity;
+    </select>
+
+    <!-- 根据主键id查询数据方法 -->
+    <select id="queryById" parameterType="int" resultMap="SupplierCommoditymap">
+        select supplier_commodity_image,
+               commoditytype_id,
+               supplier_commodity_onprice,
+               supplier_commodity_id,
+               supplier_id,
+               supplier_commodity_name
+        from supplier_commodity
+        where supplier_commodity_id = #{supplierCommodityId};
+    </select>
+
+
+    <!-- 根据SupplierCommodity条件模糊查询数据方法 -->
+    <select id="queryLike" resultMap="SupplierCommoditymap">
+        select
+        supplier_commodity_image,commoditytype_id,supplier_commodity_onprice,supplier_commodity_id,supplier_id,supplier_commodity_name
+        from supplier_commodity
+        <where>
+            <if test="suppliercommodity.supplierCommodityName != null">
+                and supplier_commodity_name like concat('%',#{suppliercommodity.supplierCommodityName},'%')
+            </if>
+            <if test="tid!=0">
+                and commoditytype_id = #{tid}
+            </if>
+        </where>
+        ORDER BY commoditytype_id
+    </select>
+
+
+    <!-- 根据SupplierCommodity模糊查询数据总条数方法 -->
+    <select id="queryLikeCount" resultType="int">
+        select count(1) from supplier_commodity
+        <where>
+            <if test="suppliercommodity.supplierCommodityName != null">
+                and supplier_commodity_name like concat('%',#{suppliercommodity.supplierCommodityName},'%')
+            </if>
+            <if test="tid!=0">
+                and commoditytype_id = #{tid}
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据SupplierCommodity插入数据方法 -->
+    <insert id="insert" parameterType="SupplierCommodity" useGeneratedKeys="true" keyColumn="supplier_commodity_id"
+            keyProperty="supplierCommodityId">
+        insert into supplier_commodity (supplier_commodity_id, supplier_commodity_name, supplier_commodity_onprice,
+                                        supplier_commodity_image)
+        values (#{supplierCommodityId}, #{supplierCommodityName}, #{supplierCommodityOnprice},
+                #{supplierCommodityImage});
+    </insert>
+
+    <!-- 根据SupplierCommodity条件修改单条数据方法,从传入对象获取主键id -->
+    <update id="updateById" parameterType="SupplierCommodity">
+        update supplier_commodity
+        <set>
+            <if test="supplierCommodityName != null">supplier_commodity_name = #{supplierCommodityName},</if>
+            <if test="supplierCommodityOnprice != null">supplier_commodity_onprice = #{supplierCommodityOnprice},</if>
+            <if test="supplierCommodityImage != null">supplier_commodity_image = #{supplierCommodityImage},</if>
+        </set>
+        where supplier_commodity_id = #{supplierCommodityId}
+    </update>
+
+
+    <select id="querySupplierCommodityByPid" parameterType="int" resultMap="SupplierCommoditymap">
+        select *
+        from supplier_commodity
+        where supplier_commodity_id
+                  in (select supplier_commodity_id from purchaseorder_details where purchaseorder_id = #{pid})
+    </select>
+
+    <select id="querySupplierCommodityByPidCount" parameterType="int" resultType="int">
+        select count(1)
+        from supplier_commodity
+        where supplier_commodity_id
+                  in (select supplier_commodity_id from purchaseorder_details where purchaseorder_id = #{pid});
+    </select>
+
+    <select id="queryCountByCidOrPid" resultType="int">
+        select commodity_quantity
+        from purchaseorder_details
+        where purchaseorder_id = #{pid}
+          and supplier_commodity_id = #{cid}
+    </select>
+
+    <select id="queryPriceByCid" parameterType="int" resultType="java.lang.Float">
+        select supplier_commodity_onprice
+        from supplier_commodity
+        where supplier_commodity_id = #{cid}
+    </select>
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zilong.dao.dataDao.ConnectionMapping">
+
+    <!-- custom -->
+    <!-- 在这里写你的自定义代码,每次生成.xml文件都会保留这一段代码 -->
+
+
+    <!-- /custom -->
+
+
+    <!-- resultMap映射 -->
+    <resultMap id="Connectionmap" type="Connection">
+        <id column="connection_id" property="connectionId"/>
+        <result column="connection_name" property="connectionName"/>
+        <result column="connection_phone" property="connectionPhone"/>
+        <result column="connection_addr" property="connectionAddr"/>
+        <result column="connection_count" property="connectionCount"/>
+        <result column="connection_state" property="connectionState"/>
+    </resultMap>
+
+    <!-- 查询所有方法 -->
+    <select id="queryAll" resultMap="Connectionmap">
+        select connection_name, connection_phone, connection_addr, connection_id, connection_count
+        from Connection;
+    </select>
+
+    <!-- 根据主键id查询数据方法 -->
+    <select id="queryById" parameterType="int" resultMap="Connectionmap">
+        select *
+        from Connection
+        where connection_id = #{connection_id};
+    </select>
+
+    <!-- 根据Connection条件模糊查询数据方法 -->
+    <select id="queryLike" resultMap="Connectionmap">
+        select *
+        from Connection
+        <where>
+            <if test="connectionId != null">and connection_id like concat('%',#{connectionId},'%')</if>
+            <if test="connectionName != null">and connection_name like concat('%',#{connectionName},'%')</if>
+            <if test="connectionPhone != null">and connection_phone like concat('%',#{connectionPhone},'%')</if>
+            <if test="connectionAddr != null">and connection_addr like concat('%',#{connectionAddr},'%')</if>
+            <if test="connectionCount != null">and connection_count like concat('%',#{connectionCount},'%')</if>
+            and connection_state = 1
+        </where>
+    </select>
+
+    <select id="queryByName" resultMap="Connectionmap">
+        select *
+        from Connection
+        <where>
+            and connection_name = #{name}
+            and connection_state = 1
+        </where>
+    </select>
+    <!-- 根据Connection模糊查询数据总条数方法 -->
+    <select id="queryLikeCount" resultType="int">
+        select count(1) from Connection
+        <where>
+            <if test="connectionId != null">and connection_id like concat('%',#{connectionId},'%')</if>
+            <if test="connectionName != null">and connection_name like concat('%',#{connectionName},'%')</if>
+            <if test="connectionPhone != null">and connection_phone like concat('%',#{connectionPhone},'%')</if>
+            <if test="connectionAddr != null">and connection_addr like concat('%',#{connectionAddr},'%')</if>
+            <if test="connectionCount != null">and connection_count like concat('%',#{connectionCount},'%')</if>
+            and connection_state = 1
+        </where>
+    </select>
+
+    <!-- 根据Connection插入数据方法 -->
+    <insert id="insert" parameterType="Connection" useGeneratedKeys="true" keyColumn="connection_id"
+            keyProperty="connectionId">
+        insert into Connection (connection_id, connection_name, connection_phone, connection_addr, connection_count)
+        values (#{connectionId}, #{connectionName}, #{connectionPhone}, #{connectionAddr}, #{connectionCount});
+    </insert>
+
+    <!-- 根据Connection条件修改单条数据方法,从传入对象获取主键id -->
+    <update id="updateById" parameterType="Connection">
+        update Connection
+        <set>
+            <if test="connectionName != null">connection_name = #{connectionName},</if>
+            <if test="connectionPhone != null">connection_phone = #{connectionPhone},</if>
+            <if test="connectionAddr != null">connection_addr = #{connectionAddr},</if>
+            <if test="connectionCount != null">connection_count = #{connectionCount},</if>
+        </set>
+        where connection_id = #{connectionId}
+    </update>
+
+    <update id="delConnectionByCid" parameterType="int">
+        update connection set connection_state = 0 where connection_id = #{cid}
+    </update>
+</mapper>

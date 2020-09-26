@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zilong.dao.otherDao.OtherMapping">
+    <!-- 供货商map映射 -->
+    <resultMap id="supplierMap" type="Supplier">
+        <id column="supplier_id" property="supplierId"/>
+        <result column="supplier_name" property="supplierName"/>
+        <result column="supplier_addr" property="supplierAddr"/>
+        <result column="supplier_mailbox" property="supplierMailbox"/>
+        <result column="supplier_password" property="supplierPassword"/>
+    </resultMap>
+    <!-- 供货商商品map映射 -->
+    <resultMap id="supplierCommodityMap" type="SupplierCommodity">
+        <id column="supplier_commodity_id" property="supplierCommodityId"/>
+        <result column="supplier_commodity_name" property="supplierCommodityName"/>
+        <result column="supplier_commodity_onprice" property="supplierCommodityOnprice"/>
+        <result column="supplier_commodity_image" property="supplierCommodityImage"/>
+        <association property="commoditytype" column="{fk=commoditytype_id}"
+                     select="com.zilong.dao.dataDao.CommoditytypeMapping.associationCommoditytypeBycommoditytype_id"
+                     javaType="Commoditytype" fetchType="lazy"/>
+        <association property="supplier" column="{fk=supplier_id}"
+                     select="com.zilong.dao.dataDao.SupplierMapping.associationSupplierBysupplier_id"
+                     javaType="Supplier" fetchType="lazy"/>
+    </resultMap>
+
+    <select id="loginSupplier" resultMap="supplierMap">
+        select *
+        from supplier
+        where supplier_mailbox = #{mailbox}
+          and supplier_password = #{password}
+    </select>
+
+    <select id="querySupplierCommodityBySid" parameterType="int" resultMap="supplierCommodityMap">
+        select *
+        from supplier_commodity
+        <where>
+            and supplier_id = #{sid}
+            <if test="supplierCommodity.supplierCommodityName!=null">
+                and supplier_commodity_name like concat ('%',#{supplierCommodity.supplierCommodityName},'%')
+            </if>
+            <if test="tid!=0">
+                and commoditytype_id = #{tid}
+            </if>
+        </where>
+        order by commoditytype_id
+    </select>
+
+    <select id="querySupplierCommodityBySidCount" parameterType="int" resultType="int">
+        select count(1)
+        from supplier_commodity
+        where supplier_id = #{sid}
+    </select>
+
+    <update id="uptSupplierCommodity">
+        update supplier_commodity
+        <set>
+            commoditytype_id = #{commoditytype.commoditytypeId},
+            <if test="supplierCommodityName!=null">supplier_commodity_name=#{supplierCommodityName},</if>
+            <if test="supplierCommodityOnprice!=null">supplier_commodity_onprice=#{supplierCommodityOnprice},</if>
+            <if test="supplierCommodityImage!=null">supplier_commodity_image=#{supplierCommodityImage},</if>
+        </set>
+        where supplier_commodity_id = #{supplierCommodityId}
+    </update>
+
+    <insert id="addSupplierCommodity">
+        insert into supplier_commodity
+        values (null, #{supplierCommodityName}, #{supplierCommodityOnprice}, #{supplierCommodityImage},
+                #{commoditytype.commoditytypeId}, #{supplier.supplierId});
+    </insert>
+</mapper>

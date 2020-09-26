@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zilong.dao.purchaseDao.PurchaseorderMapping">
+
+    <!-- custom -->
+    <!-- 在这里写你的自定义代码,每次生成.xml文件都会保留这一段代码 -->
+
+
+    <!-- /custom -->
+
+
+    <!-- resultMap映射 -->
+    <resultMap id="Purchaseordermap" type="Purchaseorder">
+        <id column="purchaseorder_id" property="purchaseorderId"/>
+        <result column="purchaseorder_number" property="purchaseorderNumber"/>
+        <result column="purchaseorder_createdate" property="purchaseorderCreatedate"/>
+        <result column="purchaseorder_validdate" property="purchaseorderValiddate"/>
+        <result column="purchaseorder_state" property="purchaseorderState"/>
+        <result column="purchaseorder_text" property="purchaseorderText"/>
+        <result column="purchaseorder_totalprice" property="purchaseorderTotalprice"/>
+        <association property="users" column="user_id"
+                     select="com.zilong.dao.systemDao.UsersMapping.queryById"
+                     javaType="Users" fetchType="lazy"/>
+    </resultMap>
+
+    <select id="queryPurchaseorderByPurchasenoteId" parameterType="int" resultMap="Purchaseordermap">
+        select * from purchaseorder where purchaseorder_id = #{purchaseorder_id}
+    </select>
+
+    <!-- 查询所有方法 -->
+    <select id="queryAll" resultMap="Purchaseordermap">
+        select purchaseorder_number,
+               purchaseorder_createdate,
+               purchaseorder_validdate,
+               user_id,
+               purchaseorder_totalprice,
+               purchaseorder_id,
+               purchaseorder_text,
+               purchaseorder_state
+        from Purchaseorder;
+    </select>
+
+    <!-- 根据主键id查询数据方法 -->
+    <select id="queryById" parameterType="int" resultMap="Purchaseordermap">
+        select purchaseorder_number,
+               purchaseorder_createdate,
+               purchaseorder_validdate,
+               user_id,
+               purchaseorder_totalprice,
+               purchaseorder_id,
+               purchaseorder_text,
+               purchaseorder_state
+        from Purchaseorder
+        where purchaseorder_id = #{purchaseorderId};
+    </select>
+
+
+    <!-- 根据Purchaseorder条件模糊查询数据方法 -->
+    <select id="queryLike" resultMap="Purchaseordermap">
+        select
+        purchaseorder_number,purchaseorder_createdate,purchaseorder_validdate,user_id,purchaseorder_totalprice,purchaseorder_id,purchaseorder_text,purchaseorder_state
+        from Purchaseorder
+        <where>
+            <if test="purchaseorderId != null">and purchaseorder_id like concat('%',#{purchaseorderId},'%')</if>
+            <if test="purchaseorderNumber != null">and purchaseorder_number like
+                concat('%',#{purchaseorderNumber},'%')
+            </if>
+            <if test="purchaseorderCreatedate != null">and purchaseorder_createdate like
+                concat('%',#{purchaseorderCreatedate},'%')
+            </if>
+            <if test="purchaseorderValiddate != null">and purchaseorder_validdate like
+                concat('%',#{purchaseorderValiddate},'%')
+            </if>
+            <if test="purchaseorderState != null">and purchaseorder_state like concat('%',#{purchaseorderState},'%')
+            </if>
+            <if test="purchaseorderText != null">and purchaseorder_text like concat('%',#{purchaseorderText},'%')</if>
+        </where>
+        group by purchaseorder_createdate desc ,purchaseorder_id desc
+    </select>
+
+    <!-- 根据Purchaseorder模糊查询数据总条数方法 -->
+    <select id="queryLikeCount" resultType="int">
+        select count(1) from Purchaseorder
+        <where>
+            <if test="purchaseorderId != null">and purchaseorder_id like concat('%',#{purchaseorderId},'%')</if>
+            <if test="purchaseorderNumber != null">and purchaseorder_number like
+                concat('%',#{purchaseorderNumber},'%')
+            </if>
+            <if test="purchaseorderCreatedate != null">and purchaseorder_createdate like
+                concat('%',#{purchaseorderCreatedate},'%')
+            </if>
+            <if test="purchaseorderValiddate != null">and purchaseorder_validdate like
+                concat('%',#{purchaseorderValiddate},'%')
+            </if>
+            <if test="purchaseorderState != null">and purchaseorder_state like concat('%',#{purchaseorderState},'%')
+            </if>
+            <if test="purchaseorderText != null">and purchaseorder_text like concat('%',#{purchaseorderText},'%')</if>
+        </where>
+    </select>
+
+    <!-- 根据Purchaseorder插入数据方法 -->
+    <insert id="insert" parameterType="Purchaseorder" useGeneratedKeys="true" keyColumn="purchaseorder_id"
+            keyProperty="purchaseorderId">
+        insert into Purchaseorder (purchaseorder_id, purchaseorder_number, purchaseorder_createdate,
+                                   purchaseorder_validdate, user_id, purchaseorder_totalprice, purchaseorder_state,
+                                   purchaseorder_text)
+        values (null, #{purchaseorderNumber}, #{purchaseorderCreatedate}, #{purchaseorderValiddate},#{users.userId},
+                #{purchaseorderTotalprice},#{purchaseorderState}, #{purchaseorderText});
+    </insert>
+
+    <!-- 根据Purchaseorder条件修改单条数据方法,从传入对象获取主键id -->
+    <update id="updateById" parameterType="Purchaseorder">
+        update Purchaseorder
+        <set>
+            <if test="purchaseorderNumber != null">purchaseorder_number = #{purchaseorderNumber},</if>
+            <if test="purchaseorderCreatedate != null">purchaseorder_createdate = #{purchaseorderCreatedate},</if>
+            <if test="purchaseorderValiddate != null">purchaseorder_validdate = #{purchaseorderValiddate},</if>
+            <if test="purchaseorderState != null">purchaseorder_state = #{purchaseorderState},</if>
+            <if test="purchaseorderText != null">purchaseorder_text = #{purchaseorderText},</if>
+        </set>
+        where purchaseorder_id = #{purchaseorderId}
+    </update>
+
+
+    <!-- 根据Purchaseorder条件删除单条数据方法,从传入对象获取id -->
+    <delete id="deleteById" parameterType="int">
+        delete
+        from Purchaseorder
+        where purchaseorder_id = #{purchaseorderId};
+    </delete>
+
+    <insert id="addPurchaseorderDetails">
+        insert into purchaseorder_details values (#{pid},#{cid},#{count})
+    </insert>
+
+    <select id="queryPurchaseorderTextByPid" parameterType="int" resultType="java.lang.String">
+        select purchaseorder_text from purchaseorder where  purchaseorder_id = #{pid}
+    </select>
+
+    <delete id="delPurchaseorderDetailsByCid" parameterType="int">
+        delete from purchaseorder_details where supplier_commodity_id = #{cid}
+    </delete>
+
+    <update id="uptCountByCidOrPid">
+        update purchaseorder_details set commodity_quantity = #{countId}
+        where supplier_commodity_id = #{cid} and purchaseorder_id = #{pid}
+    </update>
+
+    <update id="uptTextByPid">
+        update purchaseorder set purchaseorder_text = #{text} where purchaseorder_id = #{pid}
+    </update>
+
+    <update id="uptPriceByPid">
+        update purchaseorder set purchaseorder_totalprice = #{price} where purchaseorder_id = #{pid}
+    </update>
+
+    <select id="queryCountByPid" parameterType="int" resultType="int">
+        select sum(commodity_quantity) from purchaseorder_details where purchaseorder_id = #{pid}
+    </select>
+
+    <update id="turnPurchaserorder" parameterType="int">
+        update purchaseorder set purchaseorder_state = '已拒绝' where purchaseorder_id = #{pid}
+    </update>
+</mapper>

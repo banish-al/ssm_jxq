@@ -1,0 +1,119 @@
+package com.zilong.dao.dataDao;
+
+import com.zilong.vo.dataVo.Commodity;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+//** custom import **//
+//在这里写你的自定义代码导入的包,每次生成.java文件都会保留这一段代码
+
+//** /custom import **//
+
+@Repository
+public interface CommodityMapping {
+
+//** custom methods **//
+    //在这里写你的自定义接口,每次生成.java文件都会保留这一段代码
+
+
+//** /custom methods **//
+
+    // 下架商品
+    int inCommodity(int commodityId);
+
+    // 上架商品
+    int onCommodity(int commodityId);
+
+    /**
+     * 查询所有方法
+     */
+    List<Commodity> queryAll();
+
+    /**
+     * 根据主键commodity_id(Commodity.commodityId)查询单条数据方法
+     */
+    Commodity queryById(int id);
+
+    /**
+     * 根据Commodity条件查询多条数据方法
+     */
+    List<Commodity> query(Commodity commodity);
+
+    /**
+     * 根据Commodity条件模糊查询多条数据方法
+     */
+    List<Commodity> queryLike(@Param("commodity") Commodity commodity, @Param("commodityOndateText") String commodityOndateText);
+
+    /**
+     * 根据Commodity条件查询数据方法,限制显示条数,startIndex为开始索引,pageSize为显示条数
+     */
+    List<Commodity> queryLimit(@Param("Commodity") Commodity commodity, @Param("startIndex") int startIndex, @Param("pageSize") int pageSize);
+
+    /**
+     * 根据Commodity条件模糊查询数据方法,限制显示条数,startIndex为开始索引,pageSize为显示条数
+     */
+    List<Commodity> queryLikeLimit(@Param("Commodity") Commodity commodity, @Param("startIndex") int startIndex, @Param("pageSize") int pageSize);
+
+    /**
+     * 根据Commodity条件获取数据总条数方法
+     */
+    int queryCount(Commodity commodity);
+
+    /**
+     * 根据Commodity模糊查询数据总条数方法
+     */
+    int queryLikeCount(@Param("commodity") Commodity commodity, @Param("commodityOndateText") String commodityOndateText);
+
+    /**
+     * 根据Commodity插入数据方法
+     */
+    int insert(@Param("commodity") Commodity commodity,@Param("wid") int wid);
+
+    /**
+     * 根据Commodity条件修改单条数据方法,从传入对象获取id
+     */
+    int updateById(Commodity commodity);
+
+    /**
+     * 根据SetValue条件修改多条数据方法,从传入对象Condition中获取修改的条件<br/>注意:如果Condition为空或Condition所有关键字段为空,则会修改该表所有数据
+     */
+    int updates(@Param("SetValue") Commodity setValue, @Param("Condition") Commodity condition);
+
+    /**
+     * 根据Commodity条件删除单条数据方法,从传入对象获取id
+     */
+    int deleteById(int id);
+
+    /**
+     * 根据Commodity条件修改多条数据方法,从传入对象获取删除条件<br/>注意:如果参数对象所有关键字段都为空值,则不会删除任何数据
+     */
+    int deletes(Commodity commodity);
+
+    //根据仓库id查询商品集合
+    List<Commodity> queryCommodityBywid(int warehouse_id);
+
+    // 根据商品id查询商品总数
+    int queryCommodityCountByCid(int cid);
+
+    // 根据商品id和仓库id查询商品个数
+    int queryCommodityCountByOneCid(@Param("cid") int cid, @Param("wid") int wid);
+
+    // 根据仓库名查询商品信息
+    List<Commodity> queryCommodityByWid(@Param("commodity") Commodity commodity, @Param("wid") int wid);
+
+    // 根据仓库名查询商品总数
+    int queryCommodityByWidCount(@Param("commodity") Commodity commodity, @Param("wid") int wid);
+
+    //入库判断，根据商品名和供货商id查询商品
+    Commodity queryCommodityByCnameOrSid(@Param("cname") String cname,@Param("sid") int sid);
+
+    //根据商品id和供货商id设置商品的进货时间
+    int setCommodityInDate(@Param("cid") int cid,@Param("sid") int sid);
+
+    // 查询数量大于0和上架的商品
+    List<Commodity> queryCommoditySales(Commodity commodity);
+    // 查询数量大于0和上架的商品 总数
+    int queryCommoditySalesConut(Commodity commodity);
+}

@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zilong.dao.dataDao.WarehouseMapping">
+
+    <!-- custom -->
+    <!-- 在这里写你的自定义代码,每次生成.xml文件都会保留这一段代码 -->
+
+
+    <!-- /custom -->
+
+
+    <!-- resultMap映射 -->
+    <resultMap id="Warehousemap" type="Warehouse">
+        <id column="warehouse_id" property="warehouseId"/>
+        <result column="warehouse_name" property="warehouseName"/>
+        <result column="warehouse_maxinventory" property="warehouseMaxinventory"/>
+        <collection property="commoditys" javaType="list" ofType="com.zilong.vo.dataVo.Commodity"
+                    column="warehouse_id" select="com.zilong.dao.dataDao.CommodityMapping.queryCommodityBywid"
+                    fetchType="lazy"/>
+    </resultMap>
+    <resultMap id="Warehousemap2" type="Warehouse">
+        <id column="warehouse_id" property="warehouseId"/>
+        <result column="warehouse_name" property="warehouseName"/>
+        <result column="warehouse_maxinventory" property="warehouseMaxinventory"/>
+    </resultMap>
+
+    <!-- 查询所有方法 -->
+    <select id="queryAll" resultMap="Warehousemap2">
+        select warehouse_name, warehouse_maxinventory, warehouse_id
+        from Warehouse;
+    </select>
+
+    <select id="queryWarehouseMaxCount" parameterType="int" resultType="int">
+        select (select warehouse_maxinventory from warehouse where warehouse_id = #{wid}) -
+               (select sum(commodity_count) from warehouse_commodity where warehouse_id = #{wid})
+    </select>
+
+    <select id="queryWarehouseCountByWid" parameterType="int" resultType="int">
+        SELECT SUM(commodity_count) FROM warehouse_commodity WHERE warehouse_id = #{wid}
+    </select>
+
+    <!-- 根据主键id查询数据方法 -->
+    <select id="queryById" parameterType="int" resultMap="Warehousemap">
+        select warehouse_name, warehouse_maxinventory, warehouse_id
+        from Warehouse
+        where warehouse_id = #{warehouseId};
+    </select>
+
+    <!-- 根据Warehouse条件查询数据方法 -->
+    <select id="query" resultMap="Warehousemap">
+        select warehouse_name,warehouse_maxinventory,warehouse_id
+        from Warehouse
+        <where>
+            <if test="warehouseId != null">and warehouse_id = #{warehouseId}</if>
+            <if test="warehouseName != null">and warehouse_name = #{warehouseName}</if>
+            <if test="warehouseMaxinventory != null">and warehouse_maxinventory = #{warehouseMaxinventory}</if>
+        </where>
+    </select>
+
+    <!-- 根据Warehouse条件模糊查询数据方法 -->
+    <select id="queryLike" resultMap="Warehousemap">
+        select warehouse_name,warehouse_maxinventory,warehouse_id
+        from Warehouse
+        <where>
+            <if test="warehouseId != null">and warehouse_id like concat('%',#{warehouseId},'%')</if>
+            <if test="warehouseName != null">and warehouse_name like concat('%',#{warehouseName},'%')</if>
+            <if test="warehouseMaxinventory != null">and warehouse_maxinventory like
+                concat('%',#{warehouseMaxinventory},'%')
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据Warehouse条件查询数据方法,限制显示条数 -->
+    <select id="queryLimit" resultMap="Warehousemap">
+        select warehouse_name,warehouse_maxinventory,warehouse_id
+        from Warehouse
+        <where>
+            <if test="Warehouse.warehouseId != null">and warehouse_id = #{Warehouse.warehouseId}</if>
+            <if test="Warehouse.warehouseName != null">and warehouse_name = #{Warehouse.warehouseName}</if>
+            <if test="Warehouse.warehouseMaxinventory != null">and warehouse_maxinventory =
+                #{Warehouse.warehouseMaxinventory}
+            </if>
+        </where>
+        limit #{startIndex},#{pageSize};
+    </select>
+
+    <!-- 根据Warehouse条件模糊查询数据方法,限制显示条数 -->
+    <select id="queryLikeLimit" resultMap="Warehousemap">
+        select warehouse_name,warehouse_maxinventory,warehouse_id
+        from Warehouse
+        <where>
+            <if test="Warehouse.warehouseId != null">and warehouse_id like concat('%',#{Warehouse.warehouseId},'%')</if>
+            <if test="Warehouse.warehouseName != null">and warehouse_name like
+                concat('%',#{Warehouse.warehouseName},'%')
+            </if>
+            <if test="Warehouse.warehouseMaxinventory != null">and warehouse_maxinventory like
+                concat('%',#{Warehouse.warehouseMaxinventory},'%')
+            </if>
+        </where>
+        limit #{startIndex},#{pageSize};
+    </select>
+
+    <!-- 根据Warehouse条件获取数据总条数方法 -->
+    <select id="queryCount" resultType="int">
+        select count(1) from Warehouse
+        <where>
+            <if test="warehouseId != null">and warehouse_id = #{warehouseId}</if>
+            <if test="warehouseName != null">and warehouse_name = #{warehouseName}</if>
+            <if test="warehouseMaxinventory != null">and warehouse_maxinventory = #{warehouseMaxinventory}</if>
+        </where>
+    </select>
+
+    <!-- 根据Warehouse模糊查询数据总条数方法 -->
+    <select id="queryLikeCount" resultType="int">
+        select count(1) from Warehouse
+        <where>
+            <if test="warehouseId != null">and warehouse_id like concat('%',#{warehouseId},'%')</if>
+            <if test="warehouseName != null">and warehouse_name like concat('%',#{warehouseName},'%')</if>
+            <if test="warehouseMaxinventory != null">and warehouse_maxinventory like
+                concat('%',#{warehouseMaxinventory},'%')
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据Warehouse插入数据方法 -->
+    <insert id="insert" parameterType="Warehouse" useGeneratedKeys="true" keyColumn="warehouse_id"
+            keyProperty="warehouseId">
+        insert into Warehouse (warehouse_id, warehouse_name, warehouse_maxinventory)
+        values (#{warehouseId}, #{warehouseName}, #{warehouseMaxinventory});
+    </insert>
+
+    <!-- 根据Warehouse条件修改单条数据方法,从传入对象获取主键id -->
+    <update id="updateById" parameterType="Warehouse">
+        update Warehouse
+        <set>
+            <if test="warehouseName != null">warehouse_name = #{warehouseName},</if>
+            <if test="warehouseMaxinventory != null">warehouse_maxinventory = #{warehouseMaxinventory},</if>
+        </set>
+        where warehouse_id = #{warehouseId}
+    </update>
+
+    <!-- 根据SetValue条件修改多条数据方法,从传入对象Condition中获取修改的条件 -->
+    <update id="updates">
+        update Warehouse
+        <set>
+            <if test="SetValue.warehouseName != null">warehouse_name = #{SetValue.warehouseName},</if>
+            <if test="SetValue.warehouseMaxinventory != null">warehouse_maxinventory =
+                #{SetValue.warehouseMaxinventory},
+            </if>
+        </set>
+        <where>
+            <if test="Condition != null">
+                <if test="Condition.warehouseId != null">and warehouse_id = #{Condition.warehouseId}</if>
+                <if test="Condition.warehouseName != null">and warehouse_name = #{Condition.warehouseName}</if>
+                <if test="Condition.warehouseMaxinventory != null">and warehouse_maxinventory =
+                    #{Condition.warehouseMaxinventory}
+                </if>
+            </if>
+        </where>
+
+    </update>
+
+    <!-- 根据Warehouse条件删除单条数据方法,从传入对象获取id -->
+    <delete id="deleteById" parameterType="int">
+        delete
+        from Warehouse
+        where warehouse_id = #{warehouseId};
+    </delete>
+
+    <!-- 根据Warehouse条件修改多条数据方法,从传入对象获取删除条件 -->
+    <delete id="deletes">
+        delete from Warehouse
+        <where>
+            <if test="warehouseId == null and warehouseName == null and warehouseMaxinventory == null ">1 = 2</if>
+            <if test="warehouseId != null">and warehouse_id = #{warehouseId}</if>
+            <if test="warehouseName != null">and warehouse_name = #{warehouseName}</if>
+            <if test="warehouseMaxinventory != null">and warehouse_maxinventory = #{warehouseMaxinventory}</if>
+        </where>
+    </delete>
+
+    <!--根据商品id和仓库id减少商品库存-->
+    <update id="lessenCidByTurnWarehouseId">
+        update warehouse_commodity set commodity_count = commodity_count - #{count}
+        where commodity_id = #{cid} and warehouse_id = #{turnWarehouseId}
+    </update>
+
+    <!--判断这个仓库是否已存在这个商品-->
+    <select id="existsByCidOrWarehouseId" resultType="int">
+        select count(1) from warehouse_commodity where commodity_id = #{cid} and warehouse_id = #{warehouseId}
+    </select>
+
+    <!--如果不存在就添加商品-->
+    <insert id="addCidByWarehouseId">
+        insert into warehouse_commodity values (#{cid},#{count},#{warehouseId})
+    </insert>
+
+    <!--如果存在就设置商品的数量-->
+    <update id="setCidByWarehouseId">
+        update warehouse_commodity set commodity_count = commodity_count +#{count}
+        where commodity_id = #{cid} and warehouse_id =#{warehouseId}
+    </update>
+
+    <!--删除仓库里商品库存为0的商品-->
+    <delete id="delCidByCountIsZero">
+        delete from warehouse_commodity where commodity_count = 0
+    </delete>
+
+    <resultMap id="basicWarehousemap" type="Warehouse">
+        <id column="warehouse_id" property="warehouseId"/>
+        <result column="warehouse_name" property="warehouseName"/>
+        <result column="warehouse_maxinventory" property="warehouseMaxinventory"/>
+    </resultMap>
+
+    <!-- 关联查询,调用者:"com.zilong.dao.dataDao.CommodityMapping" -->
+    <select id="queryWarehouseByCid" resultMap="Warehousemap">
+        select * from warehouse
+        where warehouse_id in (select warehouse_id from warehouse_commodity where commodity_id = #{commodity_id})
+    </select>
+
+    <select id="queryWarehouseByOne" resultType="int">
+        select warehouse_id from warehouse limit 1
+    </select>
+</mapper>

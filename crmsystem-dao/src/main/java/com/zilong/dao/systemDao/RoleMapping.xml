@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zilong.dao.systemDao.RoleMapping">
+
+
+    <!-- resultMap映射 -->
+    <resultMap id="rolemap" type="Role">
+        <id column="role_id" property="roleId"/>
+        <result column="role_name" property="roleName"/>
+    </resultMap>
+
+    <select id="queryRoleByUid" parameterType="int" resultMap="rolemap">
+        select r.* from users u join user_role ur on u.user_id=ur.user_id join role r on ur.role_id = r.role_id where u.user_id=#{uid}
+    </select>
+
+    <select id="queryAll" resultMap="rolemap">
+        select * from role group by role_id;
+    </select>
+
+    <insert id="addRole">
+        insert into role values (null,#{roleName})
+    </insert>
+</mapper>

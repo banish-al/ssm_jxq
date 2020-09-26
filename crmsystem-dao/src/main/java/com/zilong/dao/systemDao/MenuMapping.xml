@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zilong.dao.systemDao.MenuMapping">
+
+    <!-- custom -->
+    <!-- 在这里写你的自定义代码,每次生成.xml文件都会保留这一段代码 -->
+
+
+    <!-- /custom -->
+
+
+    <!-- resultMap映射 -->
+    <resultMap id="Menumap" type="Menu">
+        <id column="null" property="null"/>
+        <result column="id" property="id"/>
+        <result column="text" property="text"/>
+        <result column="url" property="url"/>
+        <result column="image" property="image"/>
+        <result column="state" property="state"/>
+        <result column="parentid" property="parentid"/>
+    </resultMap>
+
+    <select id="queryMenuByPid" parameterType="int" resultMap="Menumap">
+        select * from menu where parentid=#{pid}
+    </select>
+
+    <select id="queryMenuByRid" parameterType="int" resultMap="Menumap">
+        SELECT m.* FROM menu m LEFT JOIN jurisdiction j ON m.id = j.menu_id WHERE j.role_id =#{roleId}
+    </select>
+
+    <insert id="addMenuByRole">
+        insert into jurisdiction values (#{menuId},#{roleId});
+    </insert>
+
+    <delete id="delMenuByRole" parameterType="int">
+        delete from jurisdiction where role_id = #{roleId}
+    </delete>
+</mapper>

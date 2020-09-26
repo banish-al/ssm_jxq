@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zilong.dao.dataDao.CommodityMapping">
+
+    <!-- custom -->
+    <!-- 在这里写你的自定义代码,每次生成.xml文件都会保留这一段代码 -->
+
+
+    <!-- /custom -->
+
+
+    <!-- resultMap映射 -->
+    <resultMap id="Commoditymap" type="Commodity">
+        <id column="commodity_id" property="commodityId"/>
+        <result column="commodity_name" property="commodityName"/>
+        <result column="commodity_coding" property="commodityCoding"/>
+        <result column="commodity_image" property="commodityImage"/>
+        <result column="commodity_inprice" property="commodityInprice"/>
+        <result column="commodity_onprice" property="commodityOnprice"/>
+        <result column="commodity_indate" property="commodityIndate"/>
+        <result column="commodity_ondate" property="commodityOndate"/>
+        <result column="commodity_state" property="commodityState"/>
+        <association property="commoditytype" column="{fk=commoditytype_id}"
+                     select="com.zilong.dao.dataDao.CommoditytypeMapping.associationCommoditytypeBycommoditytype_id"
+                     javaType="Commoditytype" fetchType="lazy"/>
+        <association property="supplier" column="{fk=supplier_id}"
+                     select="com.zilong.dao.dataDao.SupplierMapping.associationSupplierBysupplier_id"
+                     javaType="Supplier" fetchType="lazy"/>
+        <collection property="warehouses" javaType="list" ofType="com.zilong.vo.dataVo.Warehouse" column="commodity_id"
+                    select="com.zilong.dao.dataDao.WarehouseMapping.queryWarehouseByCid" fetchType="lazy">
+        </collection>
+    </resultMap>
+
+    <resultMap id="Commoditymap2" type="Commodity">
+        <id column="commodity_id" property="commodityId"/>
+        <result column="commodity_name" property="commodityName"/>
+        <result column="commodity_coding" property="commodityCoding"/>
+        <result column="commodity_image" property="commodityImage"/>
+        <result column="commodity_inprice" property="commodityInprice"/>
+        <result column="commodity_onprice" property="commodityOnprice"/>
+        <result column="commodity_indate" property="commodityIndate"/>
+        <result column="commodity_ondate" property="commodityOndate"/>
+        <result column="commodity_state" property="commodityState"/>
+    </resultMap>
+
+    <select id="queryCommodityByCnameOrSid" resultMap="Commoditymap">
+        select * from commodity where commodity_name = #{cname} and supplier_id = #{sid}
+    </select>
+
+    <update id="setCommodityInDate">
+        update commodity set commodity_indate = now() where commodity_id = #{cid} and supplier_id = #{sid}
+    </update>
+
+    <update id="inCommodity" parameterType="int">
+        update commodity
+        set commodity_state = '下架'
+        where commodity_id = #{commodityId}
+    </update>
+
+    <update id="onCommodity" parameterType="int">
+        update commodity
+        set commodity_state = '上架'
+        where commodity_id = #{commodityId}
+    </update>
+
+    <!-- 查询所有方法 -->
+    <select id="queryAll" resultMap="Commoditymap">
+        select *
+        from Commodity;
+    </select>
+
+    <!-- 根据主键id查询数据方法 -->
+    <select id="queryById" parameterType="int" resultMap="Commoditymap">
+        select *
+        from Commodity
+        where commodity_id = #{commodityId};
+    </select>
+
+    <!-- 根据Commodity条件查询数据方法 -->
+    <select id="query" resultMap="Commoditymap">
+        select * from Commodity
+        <where>
+            <if test="commodityId != null">and commodity_id = #{commodityId}</if>
+            <if test="commodityName != null">and commodity_name = #{commodityName}</if>
+            <if test="commodityCoding != null">and commodity_coding = #{commodityCoding}</if>
+            <if test="commodityImage != null">and commodity_image = #{commodityImage}</if>
+            <if test="commodityInprice != null">and commodity_inprice = #{commodityInprice}</if>
+            <if test="commodityOnprice != null">and commodity_onprice = #{commodityOnprice}</if>
+            <if test="commodityIndate != null">and commodity_indate = #{commodityIndate}</if>
+            <if test="commodityOndate != null">and commodity_ondate = #{commodityOndate}</if>
+            <if test="commoditytype != null">
+                <if test="commoditytype.commoditytype_id != null">and commoditytype_id =
+                    #{commoditytype.commoditytype_id}
+                </if>
+            </if>
+            <if test="supplier != null">
+                <if test="supplier.supplier_id != null">and supplier_id = #{supplier.supplier_id}</if>
+            </if>
+        </where>
+    </select>
+
+    <select id="queryCommoditySales" resultMap="Commoditymap">
+        select distinct c.* from commodity c join warehouse_commodity w on c.commodity_id = w.commodity_id
+        <where>
+            <if test="commodityName != null">
+                and c.commodity_name like concat('%',#{commodityName},'%')
+            </if>
+            <if test="commoditytype != null">
+                and c.commoditytype_id = #{commoditytype.commodityId}
+            </if>
+            and w.commodity_count >0
+            and c.commodity_state = '上架'
+        </where>
+    </select>
+
+    <select id="queryCommoditySalesConut" resultType="int">
+        select count(distinct (c.commodity_id)) from commodity c join warehouse_commodity w on c.commodity_id = w.commodity_id
+        <where>
+            <if test="commodityName != null">
+                and c.commodity_name like concat('%',#{commodityName},'%')
+            </if>
+            <if test="commoditytype != null">
+                and c.commoditytype_id = #{commoditytype.commodityId}
+            </if>
+            and w.commodity_count >0
+            and c.commodity_state = '上架'
+        </where>
+    </select>
+
+    <!-- 根据Commodity条件模糊查询数据方法 -->
+    <select id="queryLike" resultMap="Commoditymap">
+        select distinct c.* from commodity c join warehouse_commodity w on c.commodity_id = w.commodity_id
+        <where>
+            <if test="commodity.commodityName != null">and c.commodity_name like
+                concat('%',#{commodity.commodityName},'%')
+            </if>
+            <if test="commodity.commodityInprice != null">and c.commodity_inprice like
+                concat('%',#{commodity.commodityInprice},'%')
+            </if>
+            <if test="commodity.commodityOnprice != null">and c.commodity_onprice like
+                concat('%',#{commodity.commodityOnprice},'%')
+            </if>
+            <if test="commodity.commodityIndate != null">and c.commodity_indate like
+                concat('%',#{commodity.commodityIndate},'%')
+            </if>
+            <if test="commodity.commodityOndate != null">and c.commodity_ondate like
+                concat('%',#{commodity.commodityOndate},'%')
+            </if>
+            <if test="commodity.commodityState != null">and c.commodity_state = #{commodity.commodityState}</if>
+            <if test="commodityOndateText != '全部'">
+                <choose>
+                    <when test="commodityOndateText == '单月'">and DATE_FORMAT(c.commodity_ondate, '%Y-%m') =
+                        DATE_FORMAT(NOW(), '%Y-%m')
+                    </when>
+                    <when test="commodityOndateText == '半年内'">and c.commodity_ondate BETWEEN DATE_SUB(NOW(),INTERVAL 6
+                        MONTH) AND NOW()
+                    </when>
+                    <when test="commodityOndateText == '一年内'">and c.commodity_ondate BETWEEN DATE_SUB(NOW(),INTERVAL 12
+                        MONTH) AND NOW()
+                    </when>
+                </choose>
+            </if>
+            <if test="commodity.commoditytype != null">
+                <if test="commodity.commoditytype.commoditytype_id != null">and c.commoditytype_id like
+                    concat('%',#{commodity.commoditytype.commoditytype_id},'%')
+                </if>
+            </if>
+            <if test="commodity.supplier != null">
+                <if test="commodity.supplier.supplier_id != null">and c.supplier_id like
+                    concat('%',#{commodity.supplier.supplier_id},'%')
+                </if>
+            </if>
+        </where>
+        /*and w.commodity_count >0*/
+    </select>
+
+    <!-- 根据Commodity条件查询数据方法,限制显示条数 -->
+    <select id="queryLimit" resultMap="Commoditymap">
+        select * from Commodity
+        <where>
+            <if test="Commodity.commodityId != null">and commodity_id = #{Commodity.commodityId}</if>
+            <if test="Commodity.commodityName != null">and commodity_name = #{Commodity.commodityName}</if>
+            <if test="Commodity.commodityCoding != null">and commodity_coding = #{Commodity.commodityCoding}</if>
+            <if test="Commodity.commodityImage != null">and commodity_image = #{Commodity.commodityImage}</if>
+            <if test="Commodity.commodityInprice != null">and commodity_inprice = #{Commodity.commodityInprice}</if>
+            <if test="Commodity.commodityOnprice != null">and commodity_onprice = #{Commodity.commodityOnprice}</if>
+            <if test="Commodity.commodityIndate != null">and commodity_indate = #{Commodity.commodityIndate}</if>
+            <if test="Commodity.commodityOndate != null">and commodity_ondate = #{Commodity.commodityOndate}</if>
+            <if test="Commodity.commoditytype != null">
+                <if test="Commodity.commoditytype.commoditytype_id != null">and commoditytype_id =
+                    #{Commodity.commoditytype.commoditytype_id}
+                </if>
+            </if>
+            <if test="Commodity.supplier != null">
+                <if test="Commodity.supplier.supplier_id != null">and supplier_id = #{Commodity.supplier.supplier_id}
+                </if>
+            </if>
+        </where>
+        limit #{startIndex},#{pageSize};
+    </select>
+
+    <!-- 根据Commodity条件模糊查询数据方法,限制显示条数 -->
+    <select id="queryLikeLimit" resultMap="Commoditymap">
+        select count(distinct (c.commodity_id)) from commodity c join warehouse_commodity w on c.commodity_id =
+        w.commodity_id
+        <where>
+            <if test="Commodity.commodityId != null">and c.commodity_id like concat('%',#{Commodity.commodityId},'%')
+            </if>
+            <if test="Commodity.commodityName != null">and c.commodity_name like
+                concat('%',#{Commodity.commodityName},'%')
+            </if>
+            <if test="Commodity.commodityCoding != null">and c.commodity_coding like
+                concat('%',#{Commodity.commodityCoding},'%')
+            </if>
+            <if test="Commodity.commodityImage != null">and c.commodity_image like
+                concat('%',#{Commodity.commodityImage},'%')
+            </if>
+            <if test="Commodity.commodityInprice != null">and c.commodity_inprice like
+                concat('%',#{Commodity.commodityInprice},'%')
+            </if>
+            <if test="Commodity.commodityOnprice != null">and c.commodity_onprice like
+                concat('%',#{Commodity.commodityOnprice},'%')
+            </if>
+            <if test="Commodity.commodityIndate != null">and c.commodity_indate like
+                concat('%',#{Commodity.commodityIndate},'%')
+            </if>
+            <if test="Commodity.commodityOndate != null">and c.commodity_ondate like
+                concat('%',#{Commodity.commodityOndate},'%')
+            </if>
+            <if test="Commodity.commoditytype != null">
+                <if test="Commodity.commoditytype.commoditytype_id != null">and c.commoditytype_id like
+                    concat('%',#{Commodity.commoditytype.commoditytype_id},'%')
+                </if>
+            </if>
+            <if test="Commodity.supplier != null">
+                <if test="Commodity.supplier.supplier_id != null">and c.supplier_id like
+                    concat('%',#{Commodity.supplier.supplier_id},'%')
+                </if>
+            </if>
+        </where>
+        and w.commodity_count >0
+        limit #{startIndex},#{pageSize};
+    </select>
+
+    <!-- 根据Commodity条件获取数据总条数方法 -->
+    <select id="queryCount" resultType="int">
+        select count(1) from Commodity
+        <where>
+            <if test="commodityId != null">and commodity_id = #{commodityId}</if>
+            <if test="commodityName != null">and commodity_name = #{commodityName}</if>
+            <if test="commodityCoding != null">and commodity_coding = #{commodityCoding}</if>
+            <if test="commodityImage != null">and commodity_image = #{commodityImage}</if>
+            <if test="commodityInprice != null">and commodity_inprice = #{commodityInprice}</if>
+            <if test="commodityOnprice != null">and commodity_onprice = #{commodityOnprice}</if>
+            <if test="commodityIndate != null">and commodity_indate = #{commodityIndate}</if>
+            <if test="commodityOndate != null">and commodity_ondate = #{commodityOndate}</if>
+            <if test="commoditytype != null">
+                <if test="commoditytype.commoditytype_id != null">and commoditytype_id =
+                    #{commoditytype.commoditytype_id}
+                </if>
+            </if>
+            <if test="supplier != null">
+                <if test="supplier.supplier_id != null">and supplier_id = #{supplier.supplier_id}</if>
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据Commodity模糊查询数据总条数方法 -->
+    <select id="queryLikeCount" resultType="int">
+        select count(distinct (c.commodity_id)) from commodity c join warehouse_commodity w on c.commodity_id =
+        w.commodity_id
+        <where>
+            <if test="commodity.commodityName != null">and c.commodity_name like
+                concat('%',#{commodity.commodityName},'%')
+            </if>
+            <if test="commodity.commodityInprice != null">and c.commodity_inprice like
+                concat('%',#{commodity.commodityInprice},'%')
+            </if>
+            <if test="commodity.commodityOnprice != null">and c.commodity_onprice like
+                concat('%',#{commodity.commodityOnprice},'%')
+            </if>
+            <if test="commodity.commodityIndate != null">and c.commodity_indate like
+                concat('%',#{commodity.commodityIndate},'%')
+            </if>
+            <if test="commodity.commodityOndate != null">and c.commodity_ondate like
+                concat('%',#{commodity.commodityOndate},'%')
+            </if>
+            <if test="commodity.commodityState != null">and c.commodity_state like
+                concat('%',#{commodity.commodityState},'%')
+            </if>
+            <if test="commodityOndateText != '全部'">
+                <choose>
+                    <when test="commodityOndateText == '单月'">and DATE_FORMAT(c.commodity_ondate, '%Y-%m') =
+                        DATE_FORMAT(NOW(), '%Y-%m')
+                    </when>
+                    <when test="commodityOndateText == '半年内'">and c.commodity_ondate BETWEEN DATE_SUB(NOW(),INTERVAL 6
+                        MONTH) AND NOW()
+                    </when>
+                    <when test="commodityOndateText == '一年内'">and c.commodity_ondate BETWEEN DATE_SUB(NOW(),INTERVAL 12
+                        MONTH) AND NOW()
+                    </when>
+                </choose>
+            </if>
+            <if test="commodity.commoditytype != null">
+                <if test="commodity.commoditytype.commoditytype_id != null">and c.commoditytype_id like
+                    concat('%',#{commodity.commoditytype.commoditytype_id},'%')
+                </if>
+            </if>
+            <if test="commodity.supplier != null">
+                <if test="commodity.supplier.supplier_id != null">and c.supplier_id like
+                    concat('%',#{commodity.supplier.supplier_id},'%')
+                </if>
+            </if>
+        </where>
+        /*and w.commodity_count >0*/
+    </select>
+
+    <!-- 根据Commodity插入数据方法 -->
+    <insert id="insert" useGeneratedKeys="true" keyColumn="commodity_id"
+            keyProperty="commodity.commodityId">
+        insert into Commodity ()
+        values (null, #{commodity.commodityName}, #{commodity.commodityCoding}, #{commodity.commodityImage}, #{commodity.commodityInprice},
+                #{commodity.commodityOnprice}, #{commodity.commodityIndate}, null, #{commodity.commodityState},
+                #{commodity.commoditytype.commoditytypeId}, #{commodity.supplier.supplierId}, #{wid});
+    </insert>
+
+    <!-- 根据Commodity条件修改单条数据方法,从传入对象获取主键id -->
+    <update id="updateById" parameterType="Commodity">
+        update Commodity
+        <set>
+            <if test="commodityName != null">commodity_name = #{commodityName},</if>
+            <if test="commodityCoding != null">commodity_coding = #{commodityCoding},</if>
+            <if test="commodityImage != null">commodity_image = #{commodityImage},</if>
+            <if test="commodityInprice != null">commodity_inprice = #{commodityInprice},</if>
+            <if test="commodityOnprice != null">commodity_onprice = #{commodityOnprice},</if>
+            <if test="commodityIndate != null">commodity_indate = #{commodityIndate},</if>
+            <if test="commodityOndate != null">commodity_ondate = #{commodityOndate},</if>
+            <if test="commoditytype != null">
+                <if test="commoditytype.commoditytype_id != null">commoditytype_id =
+                    #{commoditytype.commoditytype_id},
+                </if>
+            </if>
+            <if test="supplier != null">
+                <if test="supplier.supplier_id != null">supplier_id = #{supplier.supplier_id},</if>
+            </if>
+        </set>
+        where commodity_id = #{commodityId}
+    </update>
+
+    <!-- 根据SetValue条件修改多条数据方法,从传入对象Condition中获取修改的条件 -->
+    <update id="updates">
+        update Commodity
+        <set>
+            <if test="SetValue.commodityName != null">commodity_name = #{SetValue.commodityName},</if>
+            <if test="SetValue.commodityCoding != null">commodity_coding = #{SetValue.commodityCoding},</if>
+            <if test="SetValue.commodityImage != null">commodity_image = #{SetValue.commodityImage},</if>
+            <if test="SetValue.commodityInprice != null">commodity_inprice = #{SetValue.commodityInprice},</if>
+            <if test="SetValue.commodityOnprice != null">commodity_onprice = #{SetValue.commodityOnprice},</if>
+            <if test="SetValue.commodityIndate != null">commodity_indate = #{SetValue.commodityIndate},</if>
+            <if test="SetValue.commodityOndate != null">commodity_ondate = #{SetValue.commodityOndate},</if>
+            <if test="SetValue.commoditytype != null">
+                <if test="SetValue.commoditytype.commoditytype_id != null">commoditytype_id =
+                    #{SetValue.commoditytype.commoditytype_id},
+                </if>
+            </if>
+            <if test="SetValue.supplier != null">
+                <if test="SetValue.supplier.supplier_id != null">supplier_id = #{SetValue.supplier.supplier_id},</if>
+            </if>
+        </set>
+        <where>
+            <if test="Condition != null">
+                <if test="Condition.commodityId != null">and commodity_id = #{Condition.commodityId}</if>
+                <if test="Condition.commodityName != null">and commodity_name = #{Condition.commodityName}</if>
+                <if test="Condition.commodityCoding != null">and commodity_coding = #{Condition.commodityCoding}</if>
+                <if test="Condition.commodityImage != null">and commodity_image = #{Condition.commodityImage}</if>
+                <if test="Condition.commodityInprice != null">and commodity_inprice = #{Condition.commodityInprice}</if>
+                <if test="Condition.commodityOnprice != null">and commodity_onprice = #{Condition.commodityOnprice}</if>
+                <if test="Condition.commodityIndate != null">and commodity_indate = #{Condition.commodityIndate}</if>
+                <if test="Condition.commodityOndate != null">and commodity_ondate = #{Condition.commodityOndate}</if>
+                <if test="Condition.commoditytype != null">
+                    <if test="Condition.commoditytype.commoditytype_id != null">and commoditytype_id =
+                        #{Condition.commoditytype.commoditytype_id}
+                    </if>
+                </if>
+                <if test="Condition.supplier != null">
+                    <if test="Condition.supplier.supplier_id != null">and supplier_id =
+                        #{Condition.supplier.supplier_id}
+                    </if>
+                </if>
+            </if>
+        </where>
+
+    </update>
+
+    <!-- 根据Commodity条件删除单条数据方法,从传入对象获取id -->
+    <delete id="deleteById" parameterType="int">
+        delete
+        from Commodity
+        where commodity_id = #{commodityId};
+    </delete>
+
+    <!-- 根据Commodity条件修改多条数据方法,从传入对象获取删除条件 -->
+    <delete id="deletes">
+        delete from Commodity
+        <where>
+            <if test="commodityId == null and commodityName == null and commodityCoding == null and commodityImage == null and commodityInprice == null and commodityOnprice == null and commodityIndate == null and commodityOndate == null and commodityInventory == null and commoditytype == null and supplier == null and warehouse == null ">
+                1 = 2
+            </if>
+            <if test="commodityId != null">and commodity_id = #{commodityId}</if>
+            <if test="commodityName != null">and commodity_name = #{commodityName}</if>
+            <if test="commodityCoding != null">and commodity_coding = #{commodityCoding}</if>
+            <if test="commodityImage != null">and commodity_image = #{commodityImage}</if>
+            <if test="commodityInprice != null">and commodity_inprice = #{commodityInprice}</if>
+            <if test="commodityOnprice != null">and commodity_onprice = #{commodityOnprice}</if>
+            <if test="commodityIndate != null">and commodity_indate = #{commodityIndate}</if>
+            <if test="commodityOndate != null">and commodity_ondate = #{commodityOndate}</if>
+            <if test="commoditytype != null">
+                <if test="commoditytype.commoditytype_id != null">and commoditytype_id =
+                    #{commoditytype.commoditytype_id}
+                </if>
+            </if>
+            <if test="supplier != null">
+                <if test="supplier.supplier_id != null">and supplier_id = #{supplier.supplier_id}</if>
+            </if>
+        </where>
+    </delete>
+
+    <select id="queryCommodityBywid" resultMap="Commoditymap2">
+        SELECT *
+        FROM commodity
+        WHERE commodity_id IN (SELECT commodity_id FROM warehouse_commodity WHERE warehouse_id = #{warehouse_id})
+    </select>
+
+    <select id="queryCommodityCountByCid" parameterType="int" resultType="int">
+        SELECT SUM(commodity_count)
+        FROM warehouse_commodity
+        WHERE commodity_id = #{cid}
+    </select>
+
+    <select id="queryCommodityCountByOneCid" resultType="int">
+        SELECT commodity_count FROM warehouse_commodity  WHERE commodity_id = #{cid} and warehouse_id = #{wid}
+    </select>
+
+    <select id="queryCommodityByWid" resultMap="Commoditymap2">
+        SELECT * FROM commodity
+        <where>
+            and commodity_id IN (SELECT commodity_id FROM warehouse_commodity WHERE warehouse_id = #{wid})
+            <if test="commodity.commodityName != null">and commodity_name like
+                concat('%',#{commodity.commodityName},'%')
+            </if>
+        </where>
+
+    </select>
+
+    <select id="queryCommodityByWidCount" resultType="int">
+        SELECT count(1) FROM commodity
+        <where>
+            and commodity_id IN (SELECT commodity_id FROM warehouse_commodity WHERE warehouse_id = #{wid})
+            <if test="commodity.commodityName != null">and commodity_name like
+                concat('%',#{commodity.commodityName},'%')
+            </if>
+        </where>
+
+    </select>
+</mapper>
+

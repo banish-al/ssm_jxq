@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zilong.dao.purchaseDao.PurchasenoteMapping">
+
+    <!-- custom -->
+    <!-- 在这里写你的自定义代码,每次生成.xml文件都会保留这一段代码 -->
+
+
+    <!-- /custom -->
+
+
+    <!-- resultMap映射 -->
+    <resultMap id="Purchasenotemap" type="Purchasenote">
+        <id column="purchasenote_id" property="purchasenoteId"/>
+        <result column="purchasenote_date" property="purchasenoteDate"/>
+        <result column="purchasenote_state" property="purchasenoteState"/>
+        <result column="purchasenote_text" property="purchasenoteText"/>
+        <association property="users" column="user_id"
+                     select="com.zilong.dao.systemDao.UsersMapping.queryById"
+                     javaType="Users" fetchType="lazy"/>
+        <association property="purchaseorder" column="purchaseorder_id"
+                     select="com.zilong.dao.purchaseDao.PurchaseorderMapping.queryPurchaseorderByPurchasenoteId"
+                     javaType="Purchaseorder" fetchType="lazy"/>
+    </resultMap>
+
+    <!-- 查询所有方法 -->
+    <select id="queryAll" resultMap="Purchasenotemap">
+        select purchasenote_id, purchasenote_text, user_id, purchaseorder_id, purchasenote_date, purchasenote_state
+        from Purchasenote;
+    </select>
+
+    <update id="setyirukuBypid" parameterType="int">
+        update purchasenote set purchasenote_state = '已入库' where purchaseorder_id = #{pid}
+    </update>
+    <!-- 根据Purchasenote条件模糊查询数据方法 -->
+    <select id="queryLike" resultMap="Purchasenotemap">
+        select purchasenote_id,purchasenote_text,user_id,purchaseorder_id,purchasenote_date,purchasenote_state
+        from Purchasenote
+        <where>
+
+        </where>
+        group by purchasenote_date desc ,purchasenote_id desc
+    </select>
+
+    <!-- 根据Purchasenote模糊查询数据总条数方法 -->
+    <select id="queryLikeCount" resultType="int">
+        select count(1) from Purchasenote
+        <where>
+
+        </where>
+    </select>
+
+    <insert id="addPurchasenote">
+        insert into purchasenote
+        values (null,#{purchaseorder.purchaseorderId}, #{users.userId}, #{purchasenoteDate}, #{purchasenoteState},
+                #{purchasenoteText})
+    </insert>
+
+</mapper>
